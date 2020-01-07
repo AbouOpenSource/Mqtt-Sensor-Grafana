@@ -6,9 +6,11 @@ from datetime import datetime
 from Queue import Queue
 from config import broker
 
+
+
 #The parameter of broker 
-broker="127.0.0.1"
-port=1883
+broker = "192.168.43.91"
+
 connected = False
 dataToStore = []
 queue = Queue()
@@ -23,10 +25,10 @@ def on_publish(client,userdata,result):
     pass
 
 client = mqtt.Client("producer1")
-#client.username_pw_set(username=broker["user"],password=broker["passwd"])
+#client.username_pw_set(username="iot",password="iot")
 client.on_publish = on_publish
 client.on_connect = on_connect
-client.connect(broker,port)
+client.connect(broker,1883)
 
 client.loop_start()
 tes = serial.Serial(port="/dev/ttyACM0", baudrate=115200, timeout=1, writeTimeout=1) 
@@ -41,7 +43,7 @@ if tes.isOpen():
 			"""
 			ligne.decode("utf-8").replace("\r\n", "")
 			text = json.loads(ligne)
-			print(text["temperature"])
+			#print(text["temperature"])
 			text["date"]= str(datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))
 			result, ret = client.publish("/topic/temperature", text["temperature"])
 			result1, ret1 = client.publish("/topic/humidity", text["humidity"])
@@ -51,7 +53,7 @@ if tes.isOpen():
 			if result == 0:
 				if not queue.isEmpty():
 					queue.sendAll(client)
-				print("online")
+				print("Published")
 			else:
 				queue.add(ligne)
 				#dataToStore.append(ligne)

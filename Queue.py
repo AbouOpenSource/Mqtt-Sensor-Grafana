@@ -42,11 +42,11 @@ class Queue:
     
 
     def sendAll(self,client):
-        if len(self.listTemperature) > 100:
+        if len(self.listTemperature) < 100:
             self.sendTemperature(client)
             self.sendHumidity(client)
             self.sendFull(client)
-
+            client.publish("/topic/all", "all are pusblish")
         else:
            a= np.array(self.listTemperature)
            b= np.array(self.listHumidity)
@@ -58,7 +58,15 @@ class Queue:
            data['maxT']= max(a)
            data['maxH']= max(b)
            #json_data = json.dumps(data)
-           client.publish("statistics",str(data)) 
+           client.publish("statistics",str(data))
+           client.publish("/topic/temperature",str(data))
+           client.publish("/topic/humidity",str(data))
+           client.publish("/topic/all",str(data))
+           
+           self.full = [] 
+           self.listHumidity = []
+           self.listTemperature = []
+           self.ligne = []
     
     def displayAll(self,client):
         for i in self.listTemperature:

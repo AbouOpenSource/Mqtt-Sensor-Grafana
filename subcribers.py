@@ -5,6 +5,8 @@ from config import influxconfig
 from config import broker
 from influxdb import InfluxDBClient
 from config import broker
+
+broker = "192.168.43.91"
 json_body_tem = [
     {
         "measurement": "temperature",
@@ -14,7 +16,7 @@ json_body_tem = [
         },
         "time": "2009-11-10T23:00:00Z",
         "fields": {
-            "value": 0.64
+            "value": 0.0
         }
     }
 ]
@@ -27,7 +29,7 @@ json_body_hum = [
         },
         "time": "2009-11-10T23:00:00Z",
         "fields": {
-            "value": 0.64
+            "value": 0.0
         }
     }
 ]
@@ -38,8 +40,6 @@ client = InfluxDBClient(influxconfig["host"], influxconfig["port"], influxconfig
 
 def on_connect(mqttc, obj, flags, rc):
     print("rc: " + str(rc))
-
-
 def on_message(mqttc, obj, msg):
     #print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     textBrute= msg.payload.decode("utf-8").replace("\r\n", "")	
@@ -53,9 +53,6 @@ def on_message(mqttc, obj, msg):
     print(client.write_points(json_body_tem))
     print(client.write_points(json_body_hum))
     print("stored")
-    
-
-
 def on_publish(mqttc, obj, mid):
     print("mid: " + str(mid))
 
@@ -74,7 +71,11 @@ mqttc.on_message = on_message
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
 mqttc.on_subscribe = on_subscribe
-mqttc.connect(broker["host"], broker["port"], 60)
+#mqttc.username_pw_set(username="iot",password="iot")
+
+mqttc.connect(broker, 1883, 60)
+
+
 mqttc.subscribe("/topic/all", 0)
 
 mqttc.loop_forever()

@@ -1,4 +1,4 @@
-broker = {'host': '127.0.0.1',
+broker = {'host': '192.168.43.21',
          'user': 'iot',
          'passwd': 'iot',
          'port': 1883}
